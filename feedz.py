@@ -9,6 +9,29 @@ class KV:
     k: str
     v: bytes
 
+# import json
+class KvQueries(object):
+    def __init__(self, db):
+        self.db = db
+    def get(self, k):
+        Q = self.db.query('SELECT * FROM kv WHERE k=:k', k=k)
+        for qq in Q:
+            print(qq.as_dict())
+        return None # Q.all()
+    def scan(self, prefix):
+        query = "SELECT * FROM kv WHERE k LIKE CONCAT(:k, '%')"
+        Q = self.db.query(query, k=prefix)
+        for r in Q:
+            kv = KV(r.ns, r.k, r.v)
+            yield kv
+            # print(qq.as_dict())
+        # return None
+    def put(self, k, v):
+        self.db.query('INSERT INTO kv (k, v) VALUES (:k, :v)', k=k, v=v)
+    def rec(self, v):
+        return self.put(uuid.uuid4(), v)
+        # self.db.query('UPDATE kv SET token = :fsi WHERE consumer=:consumer', consumer=self.consumer, fsi=fsi)
+
 class FeedCursorQueries(object):
     def __init__(self, db, consumer):
         self.db = db
@@ -23,12 +46,12 @@ class FeedCursorQueries(object):
     def resume(self):
         self.db.query('UPDATE feed_cursors SET enabled = 1 WHERE consumer=:consumer', consumer=self.consumer)
 
-class KvQueries(object):
-    def __init__(self, db, table):
-        self.db = db
-        self.table = db
-    def republish(self):
-        self.db.query(f"UPDATE {self.table} SET feed_sync_id = NULL")
+# class KvQueries(object):
+#     def __init__(self, db, table):
+#         self.db = db
+#         self.table = db
+#     def republish(self):
+#         self.db.query(f"UPDATE {self.table} SET feed_sync_id = NULL")
 
 class SeqQueries(object):
     def __init__(self, db):
