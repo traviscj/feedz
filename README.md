@@ -1,5 +1,9 @@
 # feedz
 
+## setup
+
+	pip3 install -r requirements.txt
+
 
 ## todo
 from [THGTP:Structuring Your Project](https://docs.python-guide.org/writing/structure/), still need to

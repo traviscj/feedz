@@ -1,5 +1,8 @@
+#!/usr/bin/env python3
 
 from dataclasses import dataclass
+import records
+
 import uuid
 
 
@@ -11,25 +14,32 @@ class KV:
 
 # import json
 class KvQueries(object):
-    def __init__(self, db):
+    def __init__(self, db: records.Database):
         self.db = db
-    def get(self, k):
-        Q = self.db.query('SELECT * FROM kv WHERE k=:k', k=k)
+        # self.db.query("set autocommit = 1")
+    def get(self, ns, k):
+        Q = self.db.query('SELECT * FROM kv WHERE ns = :ns AND k=:k', ns=ns, k=k)
         for qq in Q:
             print(qq.as_dict())
         return None # Q.all()
-    def scan(self, prefix):
-        query = "SELECT * FROM kv WHERE k LIKE CONCAT(:k, '%')"
-        Q = self.db.query(query, k=prefix)
+    def scan(self, ns, prefix=""):
+        query = "SELECT * FROM kv WHERE ns = :ns AND k LIKE CONCAT(:k, '%')"
+        Q = self.db.query(query, ns=ns, k=prefix)
         for r in Q:
             kv = KV(r.ns, r.k, r.v)
             yield kv
             # print(qq.as_dict())
         # return None
-    def put(self, k, v):
-        self.db.query('INSERT INTO kv (k, v) VALUES (:k, :v)', k=k, v=v)
-    def rec(self, v):
-        return self.put(uuid.uuid4(), v)
+    def put(self, ns, k, v):
+        # self.db
+        with self.db.transaction() as conn:
+            conn.query('INSERT INTO kv (ns, k, v) VALUES (:ns, :k, :v)', ns=ns, k=k, v=v)
+        return
+
+        # return
+        # return self.db.query(
+    def rec(self, ns, v):
+        return self.put(ns, uuid.uuid4(), v)
         # self.db.query('UPDATE kv SET token = :fsi WHERE consumer=:consumer', consumer=self.consumer, fsi=fsi)
 
 class FeedCursorQueries(object):

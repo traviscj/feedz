@@ -1,11 +1,12 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import click
 import feedz
 import records
+from dbselector import *
 from click_repl import register_repl
 
-db = records.Database('mysql://root@localhost/traviscj')
+db = records.Database(f'mysql+mysqlconnector://{user}:{password}@{dbhost}/{dbname}')
 
 PN = "feed-kv"
 CN = "show"
@@ -54,6 +55,7 @@ def republish_all():
     pass
 
 @cli.command()
+@click.argument("ns", default="-")
 def ls():
     kq = feedz.KvQueries(db)
     for kv in kq.scan(""):
@@ -63,9 +65,14 @@ def ls():
 def kv(): pass
 
 @kv.command()
-@click.argument("k")
+@click.argument("ns")
+# @click.argument("k")
 @click.argument("v")
-def put(k, v):
+def put(ns, v):
+    kq = feedz.KvQueries(db)
+    
+    print(kq.rec(ns, v))
+    
     pass
 
 @kv.command()
@@ -78,16 +85,24 @@ def get(k):
     print()
 
 @kv.command()
-@click.argument("prefix")
-def scan(prefix):
+@click.argument("ns")
+@click.argument("prefix", default="")
+def scan(ns, prefix):
     kq = feedz.KvQueries(db)
-    for kv in kq.scan(prefix):
+    for kv in kq.scan(ns, prefix):
         print(kv)
 
 @kv.command()
+@click.argument("ns")
 @click.argument("v")
-def record(v):
-    pass
+def record(ns, v):
+    kq = feedz.KvQueries(db)
+    
+    print(kq.rec(ns, v))
+        # print(kv)
+    
+    # pass
+    
 
 @kv.command()
 @click.argument("ns")
