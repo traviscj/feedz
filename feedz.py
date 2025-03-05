@@ -34,7 +34,11 @@ class KvQueries(object):
         # self.db
         with self.db.transaction() as conn:
             conn.query('INSERT INTO kv (ns, k, v) VALUES (:ns, :k, :v)', ns=ns, k=k, v=v)
-        return
+            return {
+                "ns": ns,
+                "k": k,
+                "v": v,
+            }
 
         # return
         # return self.db.query(

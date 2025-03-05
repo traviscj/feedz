@@ -109,6 +109,28 @@ def record(ns, v):
 def namespace(ns):
     pass
 
+import pyperclip
+import time
+
+@cli.command()
+@click.argument("ns")
+def watchpb(ns):
+    click.echo(f"watchpb w/ ns={ns}")
+    kq = feedz.KvQueries(db)
+
+    recent = set()
+
+    last_paste = ""
+    while True:
+        cur_paste = pyperclip.paste()
+        if cur_paste.startswith("http") and last_paste != cur_paste and cur_paste not in recent:
+            kq.rec(ns, cur_paste)
+            last_paste = cur_paste
+            recent.add(cur_paste)
+            click.echo(f"{cur_paste} -- {len(recent)}")
+        time.sleep(1)
+
+
 def main():
     # consume_all()
     cli()
