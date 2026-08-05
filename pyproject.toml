@@ -1,0 +1,25 @@
+[project]
+name = "feedz"
+version = "0.2.0"
+description = "MySQL-backed kv store + change feed (publisher/consumer over plain tables), with CLI, web dashboard, and HTTP feed endpoint"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "click>=8.1",
+    "click-repl>=0.3",
+    "flask>=3.0",
+    "sqlalchemy>=2.0",
+    "pymysql>=1.1",
+    "pyperclip>=1.9",
+]
+
+[project.scripts]
+feedzcli = "feedz.cli:main"
+feedz-web = "feedz.web:main"
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[build-system]
+requires = ["uv_build>=0.8.5,<0.9"]
+build-backend = "uv_build"

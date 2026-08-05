@@ -1,8 +1,10 @@
 init:
-    pip install -r requirements.txt
+	uv sync
 
 test:
-    py.test tests
+	uv run pytest
 
-.PHONY: init test
+web:
+	uv run feedz-web
 
+.PHONY: init test web

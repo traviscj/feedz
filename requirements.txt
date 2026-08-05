@@ -1,4 +1,0 @@
-records
-click
-click_repl
-mysql-connector-python
